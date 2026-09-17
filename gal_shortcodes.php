@@ -6,10 +6,11 @@ function rk_gal_items_html($posts, $with_cat = false) {
     $items = '';
     foreach ($posts as $p) {
         $tid = get_post_thumbnail_id($p->ID); if (!$tid) continue;
-        $full = wp_get_attachment_image_url($tid, 'full'); $mid = wp_get_attachment_image_url($tid, 'large');
+        $full = wp_get_attachment_image_url($tid, 'large'); $mid = wp_get_attachment_image_url($tid, 'medium_large') ?: wp_get_attachment_image_url($tid, 'large');
+        $srcset = wp_get_attachment_image_srcset($tid, 'medium_large'); $srcset = $srcset ? ' srcset="' . esc_attr($srcset) . '" sizes="(max-width:767px) 85vw, (max-width:1024px) 45vw, 280px"' : '';
         $cap = esc_html(get_the_title($p)); $cat = '';
         if ($with_cat) { $tt = get_the_terms($p->ID, 'rk_gal_kat'); $cat = ($tt && !is_wp_error($tt)) ? $tt[0]->slug : ''; }
-        $items .= '<a class="rkg-it"' . ($with_cat ? ' data-cat="' . esc_attr($cat) . '"' : '') . ' href="' . esc_url($full) . '" target="_blank" rel="noopener"><img loading="lazy" src="' . esc_url($mid) . '" alt="' . $cap . '"><span class="rkg-cap">' . $cap . '</span></a>';
+        $items .= '<a class="rkg-it"' . ($with_cat ? ' data-cat="' . esc_attr($cat) . '"' : '') . ' href="' . esc_url($full) . '" target="_blank" rel="noopener"><img loading="lazy" decoding="async" src="' . esc_url($mid) . '"' . $srcset . ' alt="' . $cap . '"><span class="rkg-cap">' . $cap . '</span></a>';
     }
     return $items;
 }
@@ -44,10 +45,10 @@ document.querySelectorAll(".rkg-wrap").forEach(function(w){var g=w.querySelector
  var sec=w.closest("section,.e-con-boxed,.e-parent")||w.parentElement;var nav=null;while(sec&&!nav){nav=sec.querySelector(".rkg-nav");if(!nav)sec=sec.parentElement;}
  if(!nav){nav=document.createElement("div");nav.className="rkg-nav rkg-nav-inline";nav.innerHTML="<button type=button class=rkg-arrow aria-label=Atgal>‹</button><button type=button class=rkg-arrow aria-label=Pirmyn>›</button>";w.insertBefore(nav,g);}
  var b=nav.querySelectorAll("button");function step(){var it=g.querySelector(".rkg-it");return it?it.getBoundingClientRect().width+14:300;}
- b[0].addEventListener("click",function(){g.scrollBy({left:-step()*4,behavior:"smooth"});});b[1].addEventListener("click",function(){g.scrollBy({left:step()*4,behavior:"smooth"});});
+ function per(){return Math.max(1,Math.round(g.clientWidth/step()));}b[0].addEventListener("click",function(){g.scrollBy({left:-step()*per(),behavior:"smooth"});});b[1].addEventListener("click",function(){g.scrollBy({left:step()*per(),behavior:"smooth"});});
  var n=g.querySelectorAll(".rkg-it").length;if(n<=4)g.classList.add("rkg-few");var d=document.createElement("div");d.className="rkg-dots";g.after(d);
- function upd(){var off=g.scrollWidth<=g.clientWidth+5;nav.classList.toggle("rkg-nav-off",off);d.classList.toggle("rkg-nav-off",off);var per=Math.max(1,Math.round(g.clientWidth/step()));var first=Math.round(g.scrollLeft/step())+1;var last=Math.min(n,first+per-1);d.textContent=first+"–"+last+" iš "+n;b[0].disabled=g.scrollLeft<5;b[1].disabled=g.scrollLeft+g.clientWidth>=g.scrollWidth-5;}
- g.addEventListener("scroll",upd);window.addEventListener("resize",upd);upd();});
+ function upd(){var off=g.scrollWidth<=g.clientWidth+5;nav.classList.toggle("rkg-nav-off",off);d.classList.toggle("rkg-nav-off",off);var first=Math.round(g.scrollLeft/step())+1;var last=Math.min(n,first+per()-1);d.textContent=(first===last?first:first+"–"+last)+" iš "+n;b[0].disabled=g.scrollLeft<5;b[1].disabled=g.scrollLeft+g.clientWidth>=g.scrollWidth-5;}
+ g.addEventListener("scroll",upd);window.addEventListener("resize",upd);window.addEventListener("load",upd);upd();requestAnimationFrame(upd);});
 var s=document.querySelector(".rkg-all");if(s){var tabs=s.querySelectorAll(".rkga-tab"),its=s.querySelectorAll(".rkg-it");var LIM=24,lim=LIM;var more=document.createElement("button");more.type="button";more.className="rkga-more";s.appendChild(more);
  function apply(){var on=s.querySelector(".rkga-tab.on");var c=on?on.getAttribute("data-cat"):"";var k=0,total=0;its.forEach(function(a){var m=!c||a.getAttribute("data-cat")===c;if(m)total++;var show=m&&k<lim;if(m)k++;a.classList.toggle("rkga-off",!show)});var left=total-Math.min(lim,total);more.style.display=left>0?"":"none";more.textContent="Rodyti daugiau ("+left+")";}
  more.addEventListener("click",function(){lim+=LIM;apply()});apply();tabs.forEach(function(t){t.addEventListener("click",function(){tabs.forEach(function(x){x.classList.remove("on")});t.classList.add("on");lim=LIM;apply();});});}
