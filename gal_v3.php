@@ -72,6 +72,7 @@ function rk_gal_mini($media, $cover) {
     return '<span class="rkg-mini">' . $out . '</span>';
 }
 function rk_gal_card($p, $with_cat = false) {
+    $GLOBALS['rk_gal_used'] = true;
     $media = rk_gal_media($p->ID); if (!$media) return '';
     $cover = get_post_thumbnail_id($p->ID);
     if (!$cover) foreach ($media as $m) { if ($m['t'] === 'i') { $cover = $m['id']; break; } }
@@ -121,7 +122,7 @@ add_shortcode('rk_galerija_visa', function () {
     foreach ($terms as $t) { if (empty($cnt[$t->slug])) continue; $tabs .= '<button type="button" class="rkga-tab" data-cat="' . esc_attr($t->slug) . '">' . esc_html($t->name) . ' <b>' . $cnt[$t->slug] . '</b></button>'; }
     return '<div class="rkg-all"><div class="rkga-tabs">' . $tabs . '</div><div class="rkga-grid">' . $html . '</div></div>';
 });
-function rk_gal_needed() { if (is_admin()) return false; $id = get_queried_object_id(); if (!$id) return false; return strpos((string) get_post_meta($id, '_elementor_data', true), '[rk_galerija') !== false; }
+function rk_gal_needed() { if (is_admin()) return false; if (!empty($GLOBALS['rk_gal_used'])) return true; $id = get_queried_object_id(); if (!$id) $id = (int) get_option('page_on_front'); if (!$id) return false; return strpos((string) get_post_meta($id, '_elementor_data', true), '[rk_galerija') !== false; }
 // ---------- Priekis: slankiklis, filtrai, perziura (lightbox su nuotraukomis ir video) ----------
 add_action('wp_footer', function () {
     if (!rk_gal_needed()) return;
@@ -157,8 +158,8 @@ var s=document.querySelector(".rkg-all");if(s){var tabs=s.querySelectorAll(".rkg
  more.addEventListener("click",function(){lim+=LIM;apply()});apply();tabs.forEach(function(t){t.addEventListener("click",function(){tabs.forEach(function(x){x.classList.remove("on")});t.classList.add("on");lim=LIM;apply()})});}
 })();</script>';
 }, 99);
-add_action('wp_head', function () {
-    if (!rk_gal_needed()) return;
+function rk_gal_print_css() {
+    if (!empty($GLOBALS['rk_gal_css_done'])) return; $GLOBALS['rk_gal_css_done'] = true;
     $css = <<<'RKGALCSS'
 .rkg-wrap,.rkg-nav,.rkg-all{font-family:Inter,sans-serif;color:#64748B;font-size:17px;line-height:1.7}.rkg-wrap *,.rkg-all *{box-sizing:border-box}
 .rkg-nav{display:flex;gap:8px;justify-content:flex-end}.rkg-nav.rkg-nav-inline{margin:0 0 14px}
@@ -188,7 +189,9 @@ body .rk-lb>button{position:absolute;background:rgba(255,255,255,.12)!important;
 @media(max-width:600px){.rk-lb{padding:52px 8px 8px}body .rk-lb>button.p,body .rk-lb>button.n{top:50%;bottom:auto;transform:translateY(-50%);width:38px;height:38px;font-size:24px!important;background:rgba(17,24,39,.55)!important}body .rk-lb>button.p{left:6px}body .rk-lb>button.n{right:6px}.rk-lb .rk-lb-thumbs button{width:46px;height:36px}}
 RKGALCSS;
     echo '<style id="rk-gal">' . $css . '</style>';
-}, 97);
+}
+add_action('wp_head', function () { if (rk_gal_needed()) rk_gal_print_css(); }, 97);
+add_action('wp_footer', function () { if (!empty($GLOBALS['rk_gal_used'])) rk_gal_print_css(); }, 1);
 // ---------- Valdymo skydelis v3: darbai su keliomis nuotraukomis / video ----------
 function rk_galui_page() {
     $nonce = wp_create_nonce('wp_rest');

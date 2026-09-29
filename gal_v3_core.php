@@ -72,6 +72,7 @@ function rk_gal_mini($media, $cover) {
     return '<span class="rkg-mini">' . $out . '</span>';
 }
 function rk_gal_card($p, $with_cat = false) {
+    $GLOBALS['rk_gal_used'] = true;
     $media = rk_gal_media($p->ID); if (!$media) return '';
     $cover = get_post_thumbnail_id($p->ID);
     if (!$cover) foreach ($media as $m) { if ($m['t'] === 'i') { $cover = $m['id']; break; } }
@@ -121,4 +122,4 @@ add_shortcode('rk_galerija_visa', function () {
     foreach ($terms as $t) { if (empty($cnt[$t->slug])) continue; $tabs .= '<button type="button" class="rkga-tab" data-cat="' . esc_attr($t->slug) . '">' . esc_html($t->name) . ' <b>' . $cnt[$t->slug] . '</b></button>'; }
     return '<div class="rkg-all"><div class="rkga-tabs">' . $tabs . '</div><div class="rkga-grid">' . $html . '</div></div>';
 });
-function rk_gal_needed() { if (is_admin()) return false; $id = get_queried_object_id(); if (!$id) return false; return strpos((string) get_post_meta($id, '_elementor_data', true), '[rk_galerija') !== false; }
+function rk_gal_needed() { if (is_admin()) return false; if (!empty($GLOBALS['rk_gal_used'])) return true; $id = get_queried_object_id(); if (!$id) $id = (int) get_option('page_on_front'); if (!$id) return false; return strpos((string) get_post_meta($id, '_elementor_data', true), '[rk_galerija') !== false; }

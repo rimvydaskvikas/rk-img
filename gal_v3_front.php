@@ -33,8 +33,8 @@ var s=document.querySelector(".rkg-all");if(s){var tabs=s.querySelectorAll(".rkg
  more.addEventListener("click",function(){lim+=LIM;apply()});apply();tabs.forEach(function(t){t.addEventListener("click",function(){tabs.forEach(function(x){x.classList.remove("on")});t.classList.add("on");lim=LIM;apply()})});}
 })();</script>';
 }, 99);
-add_action('wp_head', function () {
-    if (!rk_gal_needed()) return;
+function rk_gal_print_css() {
+    if (!empty($GLOBALS['rk_gal_css_done'])) return; $GLOBALS['rk_gal_css_done'] = true;
     $css = <<<'RKGALCSS'
 .rkg-wrap,.rkg-nav,.rkg-all{font-family:Inter,sans-serif;color:#64748B;font-size:17px;line-height:1.7}.rkg-wrap *,.rkg-all *{box-sizing:border-box}
 .rkg-nav{display:flex;gap:8px;justify-content:flex-end}.rkg-nav.rkg-nav-inline{margin:0 0 14px}
@@ -64,4 +64,6 @@ body .rk-lb>button{position:absolute;background:rgba(255,255,255,.12)!important;
 @media(max-width:600px){.rk-lb{padding:52px 8px 8px}body .rk-lb>button.p,body .rk-lb>button.n{top:50%;bottom:auto;transform:translateY(-50%);width:38px;height:38px;font-size:24px!important;background:rgba(17,24,39,.55)!important}body .rk-lb>button.p{left:6px}body .rk-lb>button.n{right:6px}.rk-lb .rk-lb-thumbs button{width:46px;height:36px}}
 RKGALCSS;
     echo '<style id="rk-gal">' . $css . '</style>';
-}, 97);
+}
+add_action('wp_head', function () { if (rk_gal_needed()) rk_gal_print_css(); }, 97);
+add_action('wp_footer', function () { if (!empty($GLOBALS['rk_gal_used'])) rk_gal_print_css(); }, 1);
