@@ -61,14 +61,15 @@ function rk_gal_media($post_id) {
 // Mini aplankas: iki 4 mazyciu miniatiuru po virseliu (rodoma tik kai darbe > 1 failo)
 function rk_gal_mini($media, $cover) {
     if (count($media) < 2) return '';
-    $out = ''; $n = 0; $rest = count($media) - 4;
+    $total = count($media); $show = $total > 3 ? 2 : $total; $out = ''; $n = 0;
     foreach ($media as $m) {
-        if ($n >= 4) break; $n++;
+        if ($n >= $show) break; $n++;
         if ($m['t'] === 'v') { $out .= '<span class="rkg-mi rkg-mi-v">&#9654;</span>'; continue; }
         $u = wp_get_attachment_image_url($m['id'], 'thumbnail');
         $out .= '<span class="rkg-mi"><img loading="lazy" src="' . esc_url($u) . '" alt=""></span>';
     }
-    if ($rest > 0) $out .= '<span class="rkg-mi rkg-mi-more">+' . $rest . '</span>';
+    if ($total > 3) $out .= '<span class="rkg-mi rkg-mi-more">+' . ($total - 2) . '</span>';
+    while ($n < 3 && $total <= 3) { $n++; if ($n > $total) $out .= '<span class="rkg-mi rkg-mi-empty"></span>'; }
     return '<span class="rkg-mini">' . $out . '</span>';
 }
 function rk_gal_card($p, $with_cat = false) {
