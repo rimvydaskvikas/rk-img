@@ -87,6 +87,12 @@ add_shortcode('rk_galerija', function ($atts) {
     $html = ''; foreach (rk_gal_query($term->term_id) as $p) $html .= rk_gal_card($p);
     return $html ? '<div class="rkg-wrap"><div class="rkg-grid">' . $html . '</div></div>' : '';
 });
+add_shortcode('rk_galerija_home', function ($atts) { // naujausi darbai (titulinis), kiekis="8"
+    $atts = shortcode_atts(array('kiekis' => 8), $atts, 'rk_galerija_home'); $limit = max(1, min(24, absint($atts['kiekis'])));
+    $posts = get_posts(array('post_type' => 'rk_galerija', 'posts_per_page' => $limit, 'orderby' => array('date' => 'DESC', 'ID' => 'DESC'), 'no_found_rows' => true));
+    $html = ''; foreach ($posts as $p) $html .= rk_gal_card($p);
+    return $html ? '<div class="rkg-wrap rkg-home"><div class="rkg-grid">' . $html . '</div></div>' : '';
+});
 add_shortcode('rk_galerija_rodykles', function () {
     return '<div class="rkg-nav"><button type="button" class="rkg-arrow" aria-label="Atgal">&#8249;</button><button type="button" class="rkg-arrow" aria-label="Pirmyn">&#8250;</button></div>';
 });
