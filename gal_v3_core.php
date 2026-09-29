@@ -54,7 +54,7 @@ function rk_gal_terms_ordered($hide_empty = true) {
 // Darbo medija: masyvas [ ['t'=>'i'|'v','id'=>int] ] ; jei meta tuscia - virselis
 function rk_gal_media($post_id) {
     $raw = get_post_meta($post_id, 'rk_media', true); $list = $raw ? json_decode($raw, true) : null; $out = array();
-    if (is_array($list)) foreach ($list as $m) { if (!empty($m['id']) && get_post($m['id'])) $out[] = array('t' => (isset($m['t']) && $m['t'] === 'v') ? 'v' : 'i', 'id' => (int) $m['id']); }
+    if (is_array($list)) foreach ($list as $m) { if (!empty($m['id']) && get_post($m['id'])) $out[] = array('t' => (isset($m['t']) && $m['t'] === 'v') ? 'v' : 'i', 'id' => (int) $m['id'], 'p' => !empty($m['p']) ? (int) $m['p'] : 0); }
     if (!$out) { $tid = get_post_thumbnail_id($post_id); if ($tid) $out[] = array('t' => 'i', 'id' => (int) $tid); }
     return $out;
 }
@@ -64,7 +64,7 @@ function rk_gal_mini($media, $cover) {
     $out = ''; $n = 0;
     foreach ($media as $m) {
         if ($n >= 3) break; $n++;
-        if ($m['t'] === 'v') { $out .= '<span class="rkg-mi rkg-mi-v">&#9654;</span>'; continue; }
+        if ($m['t'] === 'v') { $pu = !empty($m['p']) ? wp_get_attachment_image_url($m['p'], 'thumbnail') : ''; $out .= '<span class="rkg-mi rkg-mi-v">' . ($pu ? '<img loading="lazy" src="' . esc_url($pu) . '" alt="">' : '') . '<i>&#9654;</i></span>'; continue; }
         $u = wp_get_attachment_image_url($m['id'], 'thumbnail');
         $out .= '<span class="rkg-mi"><img loading="lazy" src="' . esc_url($u) . '" alt=""></span>';
     }
@@ -77,7 +77,7 @@ function rk_gal_card($p, $with_cat = false) {
     if (!$cover) foreach ($media as $m) { if ($m['t'] === 'i') { $cover = $m['id']; break; } }
     $cap = esc_html(get_the_title($p)); $items = array(); $ni = 0; $nv = 0;
     foreach ($media as $m) {
-        if ($m['t'] === 'v') { $nv++; $items[] = array('t' => 'v', 'src' => wp_get_attachment_url($m['id']), 'poster' => $cover ? wp_get_attachment_image_url($cover, 'large') : ''); }
+        if ($m['t'] === 'v') { $nv++; $pid = !empty($m['p']) ? $m['p'] : $cover; $items[] = array('t' => 'v', 'src' => wp_get_attachment_url($m['id']), 'poster' => $pid ? wp_get_attachment_image_url($pid, 'large') : '', 'thumb' => $pid ? wp_get_attachment_image_url($pid, 'thumbnail') : ''); }
         else { $ni++; $items[] = array('t' => 'i', 'src' => wp_get_attachment_image_url($m['id'], 'large'), 'full' => wp_get_attachment_image_url($m['id'], 'full')); }
     }
     $thumb = $cover ? wp_get_attachment_image_url($cover, 'medium_large') : ''; $srcset = $cover ? wp_get_attachment_image_srcset($cover, 'medium_large') : '';
