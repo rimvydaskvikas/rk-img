@@ -102,7 +102,11 @@ add_shortcode('rk_galerija', function ($atts) {
 });
 add_shortcode('rk_galerija_home', function ($atts) { // naujausi darbai (titulinis), kiekis="8"
     $atts = shortcode_atts(array('kiekis' => 8), $atts, 'rk_galerija_home'); $limit = max(1, min(24, absint($atts['kiekis'])));
-    $posts = get_posts(array('post_type' => 'rk_galerija', 'posts_per_page' => $limit, 'orderby' => array('date' => 'DESC', 'ID' => 'DESC'), 'no_found_rows' => true));
+    // pirmenybe darbams su nuotraukomis (ne tik video), tvarka - kaip galerijoje (menu_order)
+    $posts = get_posts(array('post_type' => 'rk_galerija', 'posts_per_page' => -1, 'orderby' => array('menu_order' => 'ASC', 'date' => 'DESC'), 'no_found_rows' => true));
+    $with = array(); $only = array();
+    foreach ($posts as $p) { $has = false; foreach (rk_gal_media($p->ID) as $m) { if ($m['t'] === 'i') { $has = true; break; } } if ($has) $with[] = $p; else $only[] = $p; }
+    $posts = array_slice(array_merge($with, $only), 0, $limit);
     $html = ''; foreach ($posts as $p) $html .= rk_gal_card($p);
     return $html ? '<div class="rkg-wrap rkg-home"><div class="rkg-grid">' . $html . '</div></div>' : '';
 });
