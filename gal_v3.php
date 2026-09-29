@@ -90,7 +90,10 @@ function rk_gal_card($p, $with_cat = false) {
 function rk_gal_query($term_id = 0) {
     $args = array('post_type' => 'rk_galerija', 'posts_per_page' => -1, 'orderby' => array('menu_order' => 'ASC', 'date' => 'DESC'), 'no_found_rows' => true);
     if ($term_id) $args['tax_query'] = array(array('taxonomy' => 'rk_gal_kat', 'terms' => $term_id));
-    return get_posts($args);
+    // pirma darbai su nuotraukomis, tik-video darbai - pabaigoje (isliekant menu_order tvarkai)
+    $with = array(); $only = array();
+    foreach (get_posts($args) as $p) { $has = false; foreach (rk_gal_media($p->ID) as $m) { if ($m['t'] === 'i') { $has = true; break; } } if ($has) $with[] = $p; else $only[] = $p; }
+    return array_merge($with, $only);
 }
 add_shortcode('rk_galerija', function ($atts) {
     $atts = shortcode_atts(array('kategorija' => ''), $atts); $term = null;
@@ -103,10 +106,7 @@ add_shortcode('rk_galerija', function ($atts) {
 add_shortcode('rk_galerija_home', function ($atts) { // naujausi darbai (titulinis), kiekis="8"
     $atts = shortcode_atts(array('kiekis' => 8), $atts, 'rk_galerija_home'); $limit = max(1, min(24, absint($atts['kiekis'])));
     // pirmenybe darbams su nuotraukomis (ne tik video), tvarka - kaip galerijoje (menu_order)
-    $posts = get_posts(array('post_type' => 'rk_galerija', 'posts_per_page' => -1, 'orderby' => array('menu_order' => 'ASC', 'date' => 'DESC'), 'no_found_rows' => true));
-    $with = array(); $only = array();
-    foreach ($posts as $p) { $has = false; foreach (rk_gal_media($p->ID) as $m) { if ($m['t'] === 'i') { $has = true; break; } } if ($has) $with[] = $p; else $only[] = $p; }
-    $posts = array_slice(array_merge($with, $only), 0, $limit);
+    $posts = array_slice(rk_gal_query(), 0, $limit);
     $html = ''; foreach ($posts as $p) $html .= rk_gal_card($p);
     return $html ? '<div class="rkg-wrap rkg-home"><div class="rkg-grid">' . $html . '</div></div>' : '';
 });
