@@ -58,6 +58,19 @@ function rk_gal_media($post_id) {
     if (!$out) { $tid = get_post_thumbnail_id($post_id); if ($tid) $out[] = array('t' => 'i', 'id' => (int) $tid); }
     return $out;
 }
+// Mini aplankas: iki 4 mazyciu miniatiuru po virseliu (rodoma tik kai darbe > 1 failo)
+function rk_gal_mini($media, $cover) {
+    if (count($media) < 2) return '';
+    $out = ''; $n = 0; $rest = count($media) - 4;
+    foreach ($media as $m) {
+        if ($n >= 4) break; $n++;
+        if ($m['t'] === 'v') { $out .= '<span class="rkg-mi rkg-mi-v">&#9654;</span>'; continue; }
+        $u = wp_get_attachment_image_url($m['id'], 'thumbnail');
+        $out .= '<span class="rkg-mi"><img loading="lazy" src="' . esc_url($u) . '" alt=""></span>';
+    }
+    if ($rest > 0) $out .= '<span class="rkg-mi rkg-mi-more">+' . $rest . '</span>';
+    return '<span class="rkg-mini">' . $out . '</span>';
+}
 function rk_gal_card($p, $with_cat = false) {
     $media = rk_gal_media($p->ID); if (!$media) return '';
     $cover = get_post_thumbnail_id($p->ID);
@@ -72,7 +85,7 @@ function rk_gal_card($p, $with_cat = false) {
     $cat = ''; if ($with_cat) { $tt = get_the_terms($p->ID, 'rk_gal_kat'); $cat = ($tt && !is_wp_error($tt)) ? $tt[0]->slug : ''; }
     return '<a class="rkg-it" href="#" role="button" aria-label="' . $cap . '"' . ($with_cat ? ' data-cat="' . esc_attr($cat) . '"' : '') . " data-media='" . esc_attr(wp_json_encode($items)) . "' data-title=\"" . $cap . '">'
         . '<span class="rkg-ph">' . ($thumb ? '<img loading="lazy" decoding="async" src="' . esc_url($thumb) . '"' . ($srcset ? ' srcset="' . esc_attr($srcset) . '" sizes="(max-width:767px) 85vw, (max-width:1024px) 45vw, 280px"' : '') . ' alt="' . $cap . '">' : '<span class="rkg-novid">&#9654;</span>')
-        . ($nv ? '<span class="rkg-play">&#9654;</span>' : '') . '<span class="rkg-n">' . $badge . '</span></span><span class="rkg-cap">' . $cap . '</span></a>';
+        . ($nv ? '<span class="rkg-play">&#9654;</span>' : '') . '<span class="rkg-n">' . $badge . '</span></span>' . rk_gal_mini($media, $cover) . '<span class="rkg-cap">' . $cap . '</span></a>';
 }
 function rk_gal_query($term_id = 0) {
     $args = array('post_type' => 'rk_galerija', 'posts_per_page' => -1, 'orderby' => array('menu_order' => 'ASC', 'date' => 'DESC'), 'no_found_rows' => true);
