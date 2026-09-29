@@ -64,8 +64,8 @@ function rk_gal_mini($media, $cover) {
     $out = ''; $n = 0;
     foreach ($media as $m) {
         if ($n >= 3) break; $n++;
-        if ($m['t'] === 'v') { $pu = !empty($m['p']) ? wp_get_attachment_image_url($m['p'], 'thumbnail') : ''; $out .= '<span class="rkg-mi rkg-mi-v">' . ($pu ? '<img loading="lazy" src="' . esc_url($pu) . '" alt="">' : '') . '<i>&#9654;</i></span>'; continue; }
-        $u = wp_get_attachment_image_url($m['id'], 'thumbnail');
+        if ($m['t'] === 'v') { $pu = !empty($m['p']) ? wp_get_attachment_image_url($m['p'], 'medium') : ''; $out .= '<span class="rkg-mi rkg-mi-v">' . ($pu ? '<img loading="lazy" src="' . esc_url($pu) . '" alt="">' : '') . '<i>&#9654;</i></span>'; continue; }
+        $u = wp_get_attachment_image_url($m['id'], 'medium');
         $out .= '<span class="rkg-mi"><img loading="lazy" src="' . esc_url($u) . '" alt=""></span>';
     }
     while ($n < 3) { $n++; $out .= '<span class="rkg-mi rkg-mi-empty"></span>'; }
@@ -77,7 +77,7 @@ function rk_gal_card($p, $with_cat = false) {
     if (!$cover) foreach ($media as $m) { if ($m['t'] === 'i') { $cover = $m['id']; break; } }
     $cap = esc_html(get_the_title($p)); $items = array(); $ni = 0; $nv = 0;
     foreach ($media as $m) {
-        if ($m['t'] === 'v') { $nv++; $pid = !empty($m['p']) ? $m['p'] : $cover; $items[] = array('t' => 'v', 'src' => wp_get_attachment_url($m['id']), 'poster' => $pid ? wp_get_attachment_image_url($pid, 'large') : '', 'thumb' => $pid ? wp_get_attachment_image_url($pid, 'thumbnail') : ''); }
+        if ($m['t'] === 'v') { $nv++; $pid = !empty($m['p']) ? $m['p'] : $cover; $items[] = array('t' => 'v', 'src' => wp_get_attachment_url($m['id']), 'poster' => $pid ? wp_get_attachment_image_url($pid, 'large') : '', 'thumb' => $pid ? wp_get_attachment_image_url($pid, 'medium') : ''); }
         else { $ni++; $items[] = array('t' => 'i', 'src' => wp_get_attachment_image_url($m['id'], 'large'), 'full' => wp_get_attachment_image_url($m['id'], 'full')); }
     }
     $thumb = $cover ? wp_get_attachment_image_url($cover, 'medium_large') : ''; $srcset = $cover ? wp_get_attachment_image_srcset($cover, 'medium_large') : '';
