@@ -63,12 +63,11 @@ function rk_gal_mini($media, $cover) {
     if (count($media) < 2) return '';
     $out = ''; $n = 0;
     foreach ($media as $m) {
-        if ($n >= 3) break; $n++;
+        if ($n >= 5) break; $n++;
         if ($m['t'] === 'v') { $pu = !empty($m['p']) ? wp_get_attachment_image_url($m['p'], 'medium') : ''; $out .= '<span class="rkg-mi rkg-mi-v">' . ($pu ? '<img loading="lazy" src="' . esc_url($pu) . '" alt="">' : '') . '<i>&#9654;</i></span>'; continue; }
         $u = wp_get_attachment_image_url($m['id'], 'medium');
         $out .= '<span class="rkg-mi"><img loading="lazy" src="' . esc_url($u) . '" alt=""></span>';
     }
-    while ($n < 3) { $n++; $out .= '<span class="rkg-mi rkg-mi-empty"></span>'; }
     return '<span class="rkg-mini">' . $out . '</span>';
 }
 function rk_gal_card($p, $with_cat = false) {
@@ -86,7 +85,7 @@ function rk_gal_card($p, $with_cat = false) {
     $cat = ''; if ($with_cat) { $tt = get_the_terms($p->ID, 'rk_gal_kat'); $cat = ($tt && !is_wp_error($tt)) ? $tt[0]->slug : ''; }
     return '<a class="rkg-it" href="#" role="button" aria-label="' . $cap . '"' . ($with_cat ? ' data-cat="' . esc_attr($cat) . '"' : '') . " data-media='" . esc_attr(wp_json_encode($items)) . "' data-title=\"" . $cap . '">'
         . '<span class="rkg-ph">' . ($thumb ? '<img loading="lazy" decoding="async" src="' . esc_url($thumb) . '"' . ($srcset ? ' srcset="' . esc_attr($srcset) . '" sizes="(max-width:767px) 85vw, (max-width:1024px) 45vw, 280px"' : '') . ' alt="' . $cap . '">' : '<span class="rkg-novid">&#9654;</span>')
-        . (($nv && !$ni) ? '<span class="rkg-play">&#9654;</span>' : '') . '<span class="rkg-n">' . $badge . '</span></span>' . rk_gal_mini($media, $cover) . '<span class="rkg-cap">' . $cap . '</span></a>';
+        . (($nv && !$ni) ? '<span class="rkg-play">&#9654;</span>' : '') . '<span class="rkg-n">' . $badge . '</span>' . rk_gal_mini($media, $cover) . '</span><span class="rkg-cap">' . $cap . '</span></a>';
 }
 function rk_gal_query($term_id = 0) {
     $args = array('post_type' => 'rk_galerija', 'posts_per_page' => -1, 'orderby' => array('menu_order' => 'ASC', 'date' => 'DESC'), 'no_found_rows' => true);

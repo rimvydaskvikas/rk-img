@@ -63,12 +63,11 @@ function rk_gal_mini($media, $cover) {
     if (count($media) < 2) return '';
     $out = ''; $n = 0;
     foreach ($media as $m) {
-        if ($n >= 3) break; $n++;
+        if ($n >= 5) break; $n++;
         if ($m['t'] === 'v') { $pu = !empty($m['p']) ? wp_get_attachment_image_url($m['p'], 'medium') : ''; $out .= '<span class="rkg-mi rkg-mi-v">' . ($pu ? '<img loading="lazy" src="' . esc_url($pu) . '" alt="">' : '') . '<i>&#9654;</i></span>'; continue; }
         $u = wp_get_attachment_image_url($m['id'], 'medium');
         $out .= '<span class="rkg-mi"><img loading="lazy" src="' . esc_url($u) . '" alt=""></span>';
     }
-    while ($n < 3) { $n++; $out .= '<span class="rkg-mi rkg-mi-empty"></span>'; }
     return '<span class="rkg-mini">' . $out . '</span>';
 }
 function rk_gal_card($p, $with_cat = false) {
@@ -86,7 +85,7 @@ function rk_gal_card($p, $with_cat = false) {
     $cat = ''; if ($with_cat) { $tt = get_the_terms($p->ID, 'rk_gal_kat'); $cat = ($tt && !is_wp_error($tt)) ? $tt[0]->slug : ''; }
     return '<a class="rkg-it" href="#" role="button" aria-label="' . $cap . '"' . ($with_cat ? ' data-cat="' . esc_attr($cat) . '"' : '') . " data-media='" . esc_attr(wp_json_encode($items)) . "' data-title=\"" . $cap . '">'
         . '<span class="rkg-ph">' . ($thumb ? '<img loading="lazy" decoding="async" src="' . esc_url($thumb) . '"' . ($srcset ? ' srcset="' . esc_attr($srcset) . '" sizes="(max-width:767px) 85vw, (max-width:1024px) 45vw, 280px"' : '') . ' alt="' . $cap . '">' : '<span class="rkg-novid">&#9654;</span>')
-        . (($nv && !$ni) ? '<span class="rkg-play">&#9654;</span>' : '') . '<span class="rkg-n">' . $badge . '</span></span>' . rk_gal_mini($media, $cover) . '<span class="rkg-cap">' . $cap . '</span></a>';
+        . (($nv && !$ni) ? '<span class="rkg-play">&#9654;</span>' : '') . '<span class="rkg-n">' . $badge . '</span>' . rk_gal_mini($media, $cover) . '</span><span class="rkg-cap">' . $cap . '</span></a>';
 }
 function rk_gal_query($term_id = 0) {
     $args = array('post_type' => 'rk_galerija', 'posts_per_page' => -1, 'orderby' => array('menu_order' => 'ASC', 'date' => 'DESC'), 'no_found_rows' => true);
@@ -172,7 +171,7 @@ function rk_gal_print_css() {
 .rkg-it .rkg-n{position:absolute;left:10px;bottom:10px;background:rgba(17,24,39,.72);color:#fff;font-size:11.5px;font-weight:600;line-height:1;padding:6px 9px;border-radius:999px;letter-spacing:.01em}
 .rkg-it .rkg-play{position:absolute;top:50%;left:50%;width:48px;height:48px;margin:-24px 0 0 -24px;border-radius:50%;background:rgba(255,255,255,.92);color:#166534;display:grid;place-items:center;font-size:18px;padding-left:4px;box-shadow:0 8px 24px rgba(0,0,0,.25)}
 .rkg-it .rkg-novid{position:absolute;inset:0;display:grid;place-items:center;color:#fff;font-size:40px;background:linear-gradient(135deg,#14532D,#0f172a)}
-.rkg-mini{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;padding:3px 0 0;background:#fff}.rkg-mi{aspect-ratio:4/3;border-radius:0;overflow:hidden;background:#F1F5F9;display:grid;place-items:center;font-size:11px;font-weight:700;color:#166534;border:0;min-width:0}.rkg-mi{position:relative}.rkg-mini .rkg-mi img,.rkg-mini .rkg-mi-v img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;transform:none!important;border-radius:0!important}.rkg-mi-v{background:#14532D;color:#fff;font-size:10px;position:relative}.rkg-mi-v img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}.rkg-mi-v i{position:absolute;inset:0;display:grid;place-items:center;font-style:normal;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.7);font-size:11px}.rkg-mi-more{background:#F0FDF4}.rkg-mi-empty{visibility:hidden}
+.rkg-mini{position:absolute;left:8px;right:8px;bottom:8px;display:flex;gap:6px;justify-content:flex-start;z-index:2;pointer-events:none}.rkg-mi{flex:0 0 calc((100% - 24px)/5);max-width:calc((100% - 24px)/5);aspect-ratio:4/3;border-radius:6px;overflow:hidden;background:#fff;border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.35);position:relative;box-sizing:border-box;min-width:0}.rkg-mini .rkg-mi img,.rkg-mini .rkg-mi-v img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;transform:none!important;border-radius:4px!important}.rkg-mi-v{background:#14532D}.rkg-mi-v i{position:absolute;inset:0;display:grid;place-items:center;font-style:normal;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.7);font-size:11px}
 .rkg-it .rkg-cap{display:block;flex:1;padding:10px 12px 11px;font-size:12.5px;font-weight:600;color:#111827;line-height:1.35;background:#fff;border-top:1px solid #E2E8F0}
 .rkg-dots{text-align:center;color:#64748B;font-size:12px;margin-top:2px}.rkg-nav-off,.rkg-dots.rkg-nav-off{display:none!important}
 .rkg-all .rkga-tabs{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin:0 0 22px}.rkg-all .rkga-tab{border:1px solid #E2E8F0;background:#fff;color:#166534;border-radius:999px;padding:9px 16px;max-width:100%;white-space:normal;text-align:center;line-height:1.3;font:600 13.5px/1.2 Inter,sans-serif;cursor:pointer;transition:.2s;box-shadow:none;text-transform:none;letter-spacing:normal}.rkg-all .rkga-tab:hover{border-color:#166534}.rkg-all .rkga-tab.on{background:#166534;color:#fff;border-color:#166534}.rkg-all .rkga-tab b{font-weight:600;opacity:.7;margin-left:2px}
